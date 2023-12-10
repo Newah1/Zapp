@@ -16,7 +16,7 @@ public class ZappController : ControllerBase
         Console.WriteLine("Big, big chungus...");
     }
 
-    [HttpPost(Name = "Zapp")]
+    [HttpGet(Name = "Zapp")]
     public async Task<BillToDateModel> Zapp()
     {
         var cookie = _pplService.GetRecaptchaToken();
