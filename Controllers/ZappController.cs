@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Zapp.Models.PPL;
+using Zapp.Services;
 
 namespace Zapp.Controllers;
 
@@ -6,17 +8,19 @@ namespace Zapp.Controllers;
 [Route("[controller]")]
 public class ZappController : ControllerBase
 {
-    public ZappController()
+    private readonly IPPLService _pplService;
+
+    public ZappController(IPPLService pplService)
     {
+        _pplService = pplService;
         Console.WriteLine("Big, big chungus...");
     }
 
     [HttpPost(Name = "Zapp")]
-    public string Zapp([FromBody] string carlMarx = "badGuy")
+    public async Task<BillToDateModel> Zapp()
     {
-        Console.WriteLine("Calling carl marx" + carlMarx);
-        carlMarx = $"{carlMarx} is the bad guy.";
-        Console.WriteLine("lemme tell ya something joe rogan");
-        return carlMarx;
+        var cookie = _pplService.GetRecaptchaToken();
+        var billToDateModel = await _pplService.GetBillToDate();
+        return billToDateModel;
     }
 }
