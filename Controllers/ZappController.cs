@@ -13,7 +13,6 @@ public class ZappController : ControllerBase
     public ZappController(IPPLService pplService)
     {
         _pplService = pplService;
-        Console.WriteLine("Big, big chungus...");
     }
 
     [HttpGet(Name = "Zapp")]
