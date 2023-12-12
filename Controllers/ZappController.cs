@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Zapp.Models;
 using Zapp.Models.PPL;
 using Zapp.Services;
 
 namespace Zapp.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class ZappController : ControllerBase
 {
     private readonly IPPLService _pplService;
@@ -18,8 +19,16 @@ public class ZappController : ControllerBase
     [HttpGet(Name = "Zapp")]
     public async Task<BillToDateModel> Zapp()
     {
-        var cookie = _pplService.GetRecaptchaToken();
+        _pplService.GetRecaptchaToken();
         var billToDateModel = await _pplService.GetBillToDate();
         return billToDateModel;
+    }
+
+    [HttpPost(Name = "DailyUsage")]
+    public async Task<DailyUsageModel> GetDailyUsage(DailyUsageRequestModel request)
+    {
+        _pplService.GetRecaptchaToken();
+        var dailyUsage = await _pplService.GetDailyUsage(request.StartDate, request.EndDate);
+        return dailyUsage;
     }
 }

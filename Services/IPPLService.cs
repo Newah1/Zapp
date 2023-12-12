@@ -1,8 +1,12 @@
+using Zapp.Models.PPL;
+
 namespace Zapp.Services;
 
 public interface IPPLService
 {
     string GetRecaptchaToken();
 
-    Task<Zapp.Models.PPL.BillToDateModel> GetBillToDate();
+    Task<BillToDateModel> GetBillToDate();
+
+    Task<DailyUsageModel> GetDailyUsage(DateTime startDate, DateTime endDate);
 }
