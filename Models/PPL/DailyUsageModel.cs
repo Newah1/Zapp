@@ -1,105 +1,105 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Zapp.Models.PPL;
 
 public class DailyUsageModel
 {
-    [JsonProperty("d")]
+    [JsonPropertyName("d")]
     public List<IntervalUsage> d { get; set; }
 }
 
 public class IntervalUsage
 {
-    [JsonProperty("__type")]
+    [JsonPropertyName("__type")]
     public string Type { get; set; }
 
-    [JsonProperty("AccountId")]
+    [JsonPropertyName("AccountId")]
     public string AccountId { get; set; }
 
-    [JsonProperty("MeterNo")]
+    [JsonPropertyName("MeterNo")]
     public string MeterNo { get; set; }
 
-    [JsonProperty("Multiplier")]
+    [JsonPropertyName("Multiplier")]
     public int Multiplier { get; set; }
 
-    [JsonProperty("Manufacturer")]
+    [JsonPropertyName("Manufacturer")]
     public object Manufacturer { get; set; }
 
-    [JsonProperty("UsageDate")]
+    [JsonPropertyName("UsageDate")]
     public string UsageDate { get; set; }
 
-    [JsonProperty("ApprovedIntervalUsage")]
+    [JsonPropertyName("ApprovedIntervalUsage")]
     public ApprovedIntervalUsage ApprovedIntervalUsage { get; set; }
 
-    [JsonProperty("DeliveredIntervalUsage")]
+    [JsonPropertyName("DeliveredIntervalUsage")]
     public object DeliveredIntervalUsage { get; set; }
 
-    [JsonProperty("ReceivedIntervalUsage")]
+    [JsonPropertyName("ReceivedIntervalUsage")]
     public object ReceivedIntervalUsage { get; set; }
 
-    [JsonProperty("PeakMaxData")]
+    [JsonPropertyName("PeakMaxData")]
     public List<object> PeakMaxData { get; set; }
 
-    [JsonProperty("PeakMinData")]
+    [JsonPropertyName("PeakMinData")]
     public List<object> PeakMinData { get; set; }
 
-    [JsonProperty("IntervalType")]
+    [JsonPropertyName("IntervalType")]
     public int IntervalType { get; set; }
 
-    [JsonProperty("AverageTemperature")]
+    [JsonPropertyName("AverageTemperature")]
     public int AverageTemperature { get; set; }
 
-    [JsonProperty("IsNetMeter")]
+    [JsonPropertyName("IsNetMeter")]
     public bool IsNetMeter { get; set; }
 
-    [JsonProperty("IsTou")]
+    [JsonPropertyName("IsTou")]
     public bool IsTou { get; set; }
 
-    [JsonProperty("IsTouHolidayOrWeekend")]
+    [JsonPropertyName("IsTouHolidayOrWeekend")]
     public bool IsTouHolidayOrWeekend { get; set; }
 }
 
 public class ApprovedIntervalUsage
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
-    [JsonProperty("IntervalData")]
+    [JsonPropertyName("IntervalData")]
     public List<object> IntervalData { get; set; }
 
-    [JsonProperty("MinUsage")]
+    [JsonPropertyName("MinUsage")]
     public object MinUsage { get; set; }
 
-    [JsonProperty("MaxUsage")]
+    [JsonPropertyName("MaxUsage")]
     public object MaxUsage { get; set; }
 
-    [JsonProperty("NetUsageRead")]
+    [JsonPropertyName("NetUsageRead")]
     public double NetUsageRead { get; set; }
 
-    [JsonProperty("NetUsageReadOnPeak")]
+    [JsonPropertyName("NetUsageReadOnPeak")]
     public object NetUsageReadOnPeak { get; set; }
 
-    [JsonProperty("NetUsageReadOffPeak")]
+    [JsonPropertyName("NetUsageReadOffPeak")]
     public object NetUsageReadOffPeak { get; set; }
 
-    [JsonProperty("DeliveredUsageRead")]
+    [JsonPropertyName("DeliveredUsageRead")]
     public int DeliveredUsageRead { get; set; }
 
-    [JsonProperty("DeliveredUsageReadOnPeak")]
+    [JsonPropertyName("DeliveredUsageReadOnPeak")]
     public object DeliveredUsageReadOnPeak { get; set; }
 
-    [JsonProperty("DeliveredUsageReadOffPeak")]
+    [JsonPropertyName("DeliveredUsageReadOffPeak")]
     public object DeliveredUsageReadOffPeak { get; set; }
 
-    [JsonProperty("ReceivedUsageRead")]
+    [JsonPropertyName("ReceivedUsageRead")]
     public int ReceivedUsageRead { get; set; }
 
-    [JsonProperty("ReceivedUsageReadOnPeak")]
+    [JsonPropertyName("ReceivedUsageReadOnPeak")]
     public object ReceivedUsageReadOnPeak { get; set; }
 
-    [JsonProperty("ReceivedUsageReadOffPeak")]
+    [JsonPropertyName("ReceivedUsageReadOffPeak")]
     public object ReceivedUsageReadOffPeak { get; set; }
 
-    [JsonProperty("UsageType")]
+    [JsonPropertyName("UsageType")]
     public object UsageType { get; set; }
 }
