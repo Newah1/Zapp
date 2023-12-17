@@ -162,7 +162,7 @@ public class PPLService : IPPLService
             new System.Net.Cookie("Authorization", _cookies["Authorization"])
         );
         cookieContainer.Add(
-            new Uri("htp://www.pplelectric.com", UriKind.Absolute),
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
             new System.Net.Cookie("ASP.NET_SessionId", _cookies["ASP.NET_SessionId"])
         );
 
