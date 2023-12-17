@@ -12,15 +12,13 @@ namespace Zapp.Services;
 public class PPLService : IPPLService
 {
     private ChromeDriver _chromeDriver;
-    private string _cookieString;
-    private string _arrAffinity;
-    private string _arrAffinitySameSite;
-    private string _aspxAuth;
+    private Dictionary<string, string> _cookies;
     private readonly PPLCredentials _pplCredentials;
 
     public PPLService(PPLCredentials pplCredentials)
     {
         _pplCredentials = pplCredentials;
+        _cookies = new Dictionary<string, string>();
     }
 
     public string GetRecaptchaToken()
@@ -62,20 +60,24 @@ public class PPLService : IPPLService
             .GoToUrl("https://www.pplelectric.com/my-account/account-management/daily-usage");
         try
         {
-            _arrAffinity = _chromeDriver.Manage().Cookies.GetCookieNamed("ARRAffinity").Value;
-            _arrAffinitySameSite = _chromeDriver
+            _cookies["ARRAffinity"] = _chromeDriver.Manage().Cookies.GetCookieNamed("ARRAffinity").Value;
+            _cookies["ARRAffinitySameSite"] = _chromeDriver
                 .Manage()
                 .Cookies
                 .GetCookieNamed("ARRAffinitySameSite")
                 .Value;
-            _aspxAuth = _chromeDriver.Manage().Cookies.GetCookieNamed(".ASPXAUTH").Value;
+            _cookies[".ASPXAUTH"] = _chromeDriver.Manage().Cookies.GetCookieNamed(".ASPXAUTH").Value;
+            _cookies["ASP.NET_SessionId"] = _chromeDriver
+                .Manage()
+                .Cookies
+                .GetCookieNamed("ASP.NET_SessionId")
+                .Value;
         }
         catch (Exception e)
         {
             Console.WriteLine("Bad cookies fetch" + e.Message);
         }
-        Console.WriteLine($"{_arrAffinity} {_arrAffinitySameSite} {_aspxAuth} {cookieValue}");
-        _cookieString = cookieValue;
+        _cookies["Authorization"] = cookieValue;
         return cookieValue;
     }
 
@@ -83,7 +85,7 @@ public class PPLService : IPPLService
     {
         var response = new BillToDateModel();
 
-        if (string.IsNullOrEmpty(_cookieString))
+        if (string.IsNullOrEmpty(_cookies["Authorization"]))
         {
             return response;
         }
@@ -91,7 +93,7 @@ public class PPLService : IPPLService
 
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
-            _cookieString
+            _cookies["Authorization"]
         );
         var responseHttp = await httpClient.GetAsync(
             "https://api.pplcloud.net/selfserve/api/account/6716108115/bill-to-date"
@@ -100,6 +102,8 @@ public class PPLService : IPPLService
         if (responseHttp.IsSuccessStatusCode)
         {
             var billToDateModel = await responseHttp.Content.ReadFromJsonAsync<BillToDateModel>();
+            if (billToDateModel == null)
+                return response;
             return billToDateModel;
         }
 
@@ -112,60 +116,100 @@ public class PPLService : IPPLService
 
         var url = "https://www.pplelectric.com/euweb/secured/Service.asmx/GetDailyUsage";
 
-        if (string.IsNullOrEmpty(_cookieString))
+        if (_cookies.ContainsKey("Authorization"))
         {
             return response;
         }
 
         var cookieContainer = new CookieContainer();
-        cookieContainer.Add(new Uri("https://www.pplelectric.com"), new System.Net.Cookie("ARRAffinity", _arrAffinity));
-        cookieContainer.Add(new Uri("https://www.pplelectric.com"), new System.Net.Cookie("ARRAffinitySameSite", _arrAffinitySameSite));
-        cookieContainer.Add(new Uri("https://www.pplelectric.com"), new System.Net.Cookie(".ASPXAUTH",_aspxAuth));
-        
+        cookieContainer.Add(
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new System.Net.Cookie("ARRAffinity", _cookies["ARRAffinity"])
+        );
+        cookieContainer.Add(
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new System.Net.Cookie("ARRAffinitySameSite", _cookies["ARRAffinitySameSite"])
+        );
+        cookieContainer.Add(
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new System.Net.Cookie(".ASPXAUTH", _cookies[".ASPXAUTH"])
+        );
+        cookieContainer.Add(
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new System.Net.Cookie("Authorization", _cookies["Authorization"])
+        );
+        cookieContainer.Add(
+            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new System.Net.Cookie("ASP.NET_SessionId", _cookies["ASP.NET_SessionId"])
+        );
+
         HttpClientHandler handler = new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             CookieContainer = cookieContainer
         };
-        
-        
+
         using HttpClient httpClient = new HttpClient(handler);
         var json = JsonConvert.SerializeObject(
-            new { usageInput = new { StartDate = startDate.ToString("d"), EndDate = endDate.ToString("d") } }
+            new
+            {
+                usageInput = new
+                {
+                    StartDate = startDate.ToString("d"),
+                    EndDate = endDate.ToString("d")
+                }
+            }
         );
         var request = new HttpRequestMessage
         {
-            RequestUri = new Uri("https://www.pplelectric.com/euweb/secured/Service.asmx/GetDailyUsage"),
+            RequestUri = new Uri(
+                "https://www.pplelectric.com/euweb/secured/Service.asmx/GetDailyUsage"
+            ),
             Method = HttpMethod.Post,
             Headers =
             {
-                { "authority", "www.pplelectric.com" },
-                { "accept", "application/json, text/javascript, */*; q=0.01" },
+                { "accept", "application/json" },
                 { "accept-encoding", "gzip, deflate, br" },
+                { "path", "/euweb/secured/Service.asmx/GetDailyUsage" },
+                { "scheme", "https" },
                 { "accept-language", "en-US,en;q=0.9" },
                 { "origin", "https://www.pplelectric.com" },
-                { "referer", "https://www.pplelectric.com/my-account/account-management/daily-usage" },
-                { "sec-ch-ua", "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Brave\";v=\"120\"" },
+                {
+                    "referer",
+                    "https://www.pplelectric.com/my-account/account-management/daily-usage"
+                },
+                {
+                    "sec-ch-ua",
+                    "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Brave\";v=\"120\""
+                },
                 { "sec-ch-ua-mobile", "?1" },
                 { "sec-ch-ua-platform", "\"Android\"" },
                 { "sec-fetch-dest", "empty" },
                 { "sec-fetch-mode", "cors" },
                 { "sec-fetch-site", "same-origin" },
                 { "sec-gpc", "1" },
-                { "x-requested-with", "XMLHttpRequest" }
+                { "x-requested-with", "XMLHttpRequest" },
+                {
+                    "user-agent",
+                    "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                }
             },
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
-        
+
         var responseHttp = await httpClient.SendAsync(request);
 
+        Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
         if (responseHttp.IsSuccessStatusCode)
         {
             Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
-            
+
             var dailyUsage = await responseHttp.Content.ReadFromJsonAsync<DailyUsageModel>();
+
+            _chromeDriver.Close();
             return dailyUsage;
         }
+        _chromeDriver.Close();
         return response;
     }
 

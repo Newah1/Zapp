@@ -5,7 +5,7 @@ namespace Zapp.Models.PPL;
 public class DailyUsageModel
 {
     [JsonProperty("d")]
-    public IntervalUsage Data { get; set; }
+    public List<IntervalUsage> d { get; set; }
 }
 
 public class IntervalUsage
