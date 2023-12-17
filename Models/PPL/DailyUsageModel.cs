@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Zapp.Attributes;
 
 namespace Zapp.Models.PPL;
 
@@ -26,7 +27,8 @@ public class IntervalUsage
     public object Manufacturer { get; set; }
 
     [JsonPropertyName("UsageDate")]
-    public string UsageDate { get; set; }
+    [JsonUnixDateTimeAttribute]
+    public DateTime UsageDate { get; set; }
 
     [JsonPropertyName("ApprovedIntervalUsage")]
     public ApprovedIntervalUsage ApprovedIntervalUsage { get; set; }
