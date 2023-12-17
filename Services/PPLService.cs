@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -116,7 +117,7 @@ public class PPLService : IPPLService
 
         var url = "https://www.pplelectric.com/euweb/secured/Service.asmx/GetDailyUsage";
 
-        if (_cookies.ContainsKey("Authorization"))
+        if (!_cookies.ContainsKey("Authorization"))
         {
             return response;
         }
@@ -204,7 +205,7 @@ public class PPLService : IPPLService
         {
             Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
 
-            var dailyUsage = await responseHttp.Content.ReadFromJsonAsync<DailyUsageModel>();
+            var dailyUsage = await responseHttp.Content.ReadFromJsonAsync<DailyUsageModel>(new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
 
             _chromeDriver.Close();
             return dailyUsage;
