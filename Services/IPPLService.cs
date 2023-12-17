@@ -4,7 +4,7 @@ namespace Zapp.Services;
 
 public interface IPPLService
 {
-    string GetRecaptchaToken();
+    Dictionary<string, string> GetCookies();
 
     Task<BillToDateModel> GetBillToDate();
 

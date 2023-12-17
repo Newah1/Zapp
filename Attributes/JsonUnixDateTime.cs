@@ -1,4 +1,6 @@
 // JsonUnixDateTime attribute
+// Converts this ya know date(105810823123) thing to a usable 
+// date 
 
 using System.Text.Json;
 using System.Text.Json.Serialization;

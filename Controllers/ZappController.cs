@@ -19,7 +19,7 @@ public class ZappController : ControllerBase
     [HttpGet(Name = "Zapp")]
     public async Task<BillToDateModel> Zapp()
     {
-        _pplService.GetRecaptchaToken();
+        _pplService.GetCookies();
         var billToDateModel = await _pplService.GetBillToDate();
         return billToDateModel;
     }
@@ -27,7 +27,7 @@ public class ZappController : ControllerBase
     [HttpPost(Name = "DailyUsage")]
     public async Task<DailyUsageModel> GetDailyUsage(DailyUsageRequestModel request)
     {
-        _pplService.GetRecaptchaToken();
+        _pplService.GetCookies();
         var dailyUsage = await _pplService.GetDailyUsage(request.StartDate, request.EndDate);
         return dailyUsage;
     }

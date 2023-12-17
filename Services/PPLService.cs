@@ -14,17 +14,32 @@ public class PPLService : IPPLService
 {
     private ChromeDriver _chromeDriver;
     private Dictionary<string, string> _cookies;
+    private DateTime? _lastRefresh;
     private readonly PPLCredentials _pplCredentials;
 
     public PPLService(PPLCredentials pplCredentials)
     {
         _pplCredentials = pplCredentials;
         _cookies = new Dictionary<string, string>();
+        _chromeDriver = new ChromeDriver();
     }
 
-    public string GetRecaptchaToken()
+    // <summary>
+    // Gets cookies in Selenium or returns existing cookies if timespan is less than 5 minutes
+    // </summary>
+    public Dictionary<string, string> GetCookies()
     {
-        _chromeDriver = new ChromeDriver();
+        if(_lastRefresh.HasValue && (DateTime.UtcNow - _lastRefresh.Value).Minutes < 5) {
+            Console.WriteLine("Cookies still good"); 
+            return _cookies;
+        }
+
+        _lastRefresh = DateTime.UtcNow;
+
+        var chromeOptions = new ChromeOptions();
+        chromeOptions.AddArguments("headless");
+        _chromeDriver = new ChromeDriver(chromeOptions);
+        
         // try maximum of 5 times.
         var loginWorked = false;
         for (var i = 0; i < 5; i++)
@@ -48,38 +63,45 @@ public class PPLService : IPPLService
 
         if (!loginWorked)
         {
-            return string.Empty;
+            return new Dictionary<string, string>();
         }
 
         // get cookies for auth
-        var cookie = _chromeDriver.Manage().Cookies.GetCookieNamed("Authorization");
-        var cookieValue = cookie.Value;
+        var cookie = _chromeDriver.Manage().Cookies.GetCookieNamed("Authorization").Value;
         // let's go to the usage page...
-        Console.WriteLine(cookie.Value);
         _chromeDriver
             .Navigate()
             .GoToUrl("https://www.pplelectric.com/my-account/account-management/daily-usage");
         try
         {
-            _cookies["ARRAffinity"] = _chromeDriver.Manage().Cookies.GetCookieNamed("ARRAffinity").Value;
+            _cookies["ARRAffinity"] = _chromeDriver
+                .Manage()
+                .Cookies
+                .GetCookieNamed("ARRAffinity")
+                .Value;
             _cookies["ARRAffinitySameSite"] = _chromeDriver
                 .Manage()
                 .Cookies
                 .GetCookieNamed("ARRAffinitySameSite")
                 .Value;
-            _cookies[".ASPXAUTH"] = _chromeDriver.Manage().Cookies.GetCookieNamed(".ASPXAUTH").Value;
+            _cookies[".ASPXAUTH"] = _chromeDriver
+                .Manage()
+                .Cookies
+                .GetCookieNamed(".ASPXAUTH")
+                .Value;
             _cookies["ASP.NET_SessionId"] = _chromeDriver
                 .Manage()
                 .Cookies
                 .GetCookieNamed("ASP.NET_SessionId")
                 .Value;
+            _cookies["Authorization"] = cookie;
         }
         catch (Exception e)
         {
             Console.WriteLine("Bad cookies fetch" + e.Message);
         }
-        _cookies["Authorization"] = cookieValue;
-        return cookieValue;
+        _chromeDriver.Close();
+        return _cookies;
     }
 
     public async Task<Zapp.Models.PPL.BillToDateModel> GetBillToDate()
@@ -140,7 +162,7 @@ public class PPLService : IPPLService
             new System.Net.Cookie("Authorization", _cookies["Authorization"])
         );
         cookieContainer.Add(
-            new Uri("http://www.pplelectric.com", UriKind.Absolute),
+            new Uri("htp://www.pplelectric.com", UriKind.Absolute),
             new System.Net.Cookie("ASP.NET_SessionId", _cookies["ASP.NET_SessionId"])
         );
 
@@ -205,12 +227,14 @@ public class PPLService : IPPLService
         {
             Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
 
-            var dailyUsage = await responseHttp.Content.ReadFromJsonAsync<DailyUsageModel>(new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
+            var dailyUsage = await responseHttp
+                .Content
+                .ReadFromJsonAsync<DailyUsageModel>(
+                    new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }
+                );
 
-            _chromeDriver.Close();
             return dailyUsage;
         }
-        _chromeDriver.Close();
         return response;
     }
 
