@@ -17,7 +17,7 @@ public class UnixDateTimeConverter : JsonConverter<DateTime>
     {
         if (reader.TokenType != JsonTokenType.String)
         {
-            throw new JsonException();
+            throw new JsonException("Value must be of type string");
         }
 
         string dateString = reader.GetString();
@@ -29,6 +29,7 @@ public class UnixDateTimeConverter : JsonConverter<DateTime>
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
+        writer.WriteStringValue(value.ToString());
     }
 }
 
