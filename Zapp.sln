@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zapp", "Zapp\Zapp.csproj", "{D87CEB25-B42A-494E-A698-6D0665846261}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZappCli", "ZappCli\ZappCli.csproj", "{5874A5EB-55DE-4A1E-83FE-9B33FC7CF4AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D87CEB25-B42A-494E-A698-6D0665846261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D87CEB25-B42A-494E-A698-6D0665846261}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D87CEB25-B42A-494E-A698-6D0665846261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5874A5EB-55DE-4A1E-83FE-9B33FC7CF4AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5874A5EB-55DE-4A1E-83FE-9B33FC7CF4AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5874A5EB-55DE-4A1E-83FE-9B33FC7CF4AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5874A5EB-55DE-4A1E-83FE-9B33FC7CF4AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
