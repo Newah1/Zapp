@@ -33,7 +33,6 @@ public class PPLService : IPPLService
             Console.WriteLine("Cookies still good"); 
             return _cookies;
         }
-
         _lastRefresh = DateTime.UtcNow;
 
         var chromeOptions = new ChromeOptions();
