@@ -30,18 +30,17 @@ public class PPLService : IPPLService
     public Dictionary<string, string> GetCookies()
     {
         if(_lastRefresh.HasValue && (DateTime.UtcNow - _lastRefresh.Value).Minutes < 5) {
-            Console.WriteLine("Cookies still good"); 
             return _cookies;
         }
         _lastRefresh = DateTime.UtcNow;
 
         var chromeOptions = new ChromeOptions();
-        chromeOptions.AddArguments("headless");
+        //chromeOptions.AddArguments("headless");
         _chromeDriver = new ChromeDriver(chromeOptions);
         
         // try maximum of 5 times.
         var loginWorked = false;
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 20; i++)
         {
             try
             {
@@ -55,7 +54,6 @@ public class PPLService : IPPLService
             catch (Exception e)
             {
                 _chromeDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-                Console.WriteLine(e.Message);
                 continue;
             }
         }
@@ -66,7 +64,7 @@ public class PPLService : IPPLService
         }
 
         // get cookies for auth
-        var cookie = _chromeDriver.Manage().Cookies.GetCookieNamed("Authorization").Value;
+        var cookie = _chromeDriver.Manage().Cookies.GetCookieNamed("Authorization")?.Value ?? "";
         // let's go to the usage page...
         _chromeDriver
             .Navigate()
@@ -97,7 +95,6 @@ public class PPLService : IPPLService
         }
         catch (Exception e)
         {
-            Console.WriteLine("Bad cookies fetch" + e.Message);
         }
         _chromeDriver.Close();
         return _cookies;
@@ -221,11 +218,8 @@ public class PPLService : IPPLService
 
         var responseHttp = await httpClient.SendAsync(request);
 
-        Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
         if (responseHttp.IsSuccessStatusCode)
         {
-            Console.WriteLine(await responseHttp.Content.ReadAsStringAsync());
-
             var dailyUsage = await responseHttp
                 .Content
                 .ReadFromJsonAsync<DailyUsageModel>(
@@ -253,7 +247,7 @@ public class PPLService : IPPLService
 
     private void WaitForLogin()
     {
-        var driverWait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(5))
+        var driverWait = new WebDriverWait(_chromeDriver, TimeSpan.FromSeconds(2))
         {
             PollingInterval = TimeSpan.FromMicroseconds(300)
         };
@@ -268,7 +262,6 @@ public class PPLService : IPPLService
             }
             catch (Exception e)
             {
-                Console.WriteLine("Not found element" + e.Message);
                 return false;
             }
         });
