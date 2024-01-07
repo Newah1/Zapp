@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Cocona;
 using Zapp.Models.PPL;
 using Zapp.Services;
 
@@ -13,6 +14,7 @@ public class PPLCommands : IPPLCommands
         _pplService = pplService;
     }
 
+    [Command("get")]
     public async Task Get()
     {
         _pplService.GetCookies();

@@ -18,13 +18,15 @@ if (!config.GetSection("PPLPassword").Exists())
 
 var pplCredentials = new PPLCredentials()
 {
-    PPLPassword = config["PPLPassword"],
-    PPLUsername = config["PPLUsername"]
+    PPLPassword = config["PPLPassword"] ?? "",
+    PPLUsername = config["PPLUsername"] ?? ""
 };
 
 builder.Services.AddSingleton(pplCredentials);
 builder.Services.AddSingleton(config);
 
 var app = builder.Build();
+
 app.AddCommands<PPLCommands>();
+
 app.Run();
